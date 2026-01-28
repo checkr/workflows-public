@@ -34,7 +34,7 @@ jobs:
       - name: Upload to ArmorCode
         if: always()
         env:
-          ARMORCODE_API_KEY: ${{ secrets.CHECKR_GITHUB_SCAN_UPLOAD_ARMORCODE_KEY }}
+          ARMORCODE_API_KEY: ${{ secrets.ARMORCODE_API_KEY }}
         run: |
           # Get signed URL from ArmorCode
           SIGNED_URL=$(curl -s -X POST https://app.armorcode.com/client/utils/scan/upload \
