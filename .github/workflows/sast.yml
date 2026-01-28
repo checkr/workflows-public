@@ -1,0 +1,62 @@
+name: SAST Security Scan
+
+on:
+  workflow_call:
+    inputs:
+      product:
+        description: 'ArmorCode Product/Team name (e.g., Platform, Security, Customer)'
+        required: true
+        type: string
+    secrets:
+      ARMORCODE_API_KEY:
+        description: 'ArmorCode API key for uploading scan results'
+        required: true
+
+jobs:
+  semgrep:
+    runs-on: ubuntu-latest
+    name: Semgrep Security Scan
+    container:
+      image: semgrep/semgrep
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Run Semgrep (JSON for ArmorCode)
+        run: semgrep scan --config auto --json --output=semgrep.json
+        
+      - name: Upload scan results as artifacts (for ArmorCode ingestion)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: semgrep-results
+          path: semgrep.json
+      
+      - name: Upload to ArmorCode
+        if: always()
+        env:
+          ARMORCODE_API_KEY: ${{ secrets.ARMORCODE_API_KEY }}
+        run: |
+          # Get signed URL from ArmorCode
+          SIGNED_URL=$(curl -s -X POST https://app.armorcode.com/client/utils/scan/upload \
+            -H "Authorization: Bearer ${ARMORCODE_API_KEY}" \
+            -H "Content-Type: application/json" \
+            -d '{
+              "env": "Production",
+              "product": "${{ inputs.product }}",
+              "subProduct": "${{ github.event.repository.name }}",
+              "scanTool": "Semgrep",
+              "tags": [],
+              "fileName": "semgrep.json",
+              "fileExtension": ".json"
+            }' | jq -r '.signedUrl')
+          
+          # Upload file to signed URL
+          if [ ! -z "$SIGNED_URL" ] && [ "$SIGNED_URL" != "null" ]; then
+            curl -X PUT "$SIGNED_URL" \
+              -H "Content-Type: application/json" \
+              --data-binary @semgrep.json
+            echo "Successfully uploaded to ArmorCode"
+          else
+            echo "Failed to get signed URL from ArmorCode"
+            exit 1
+          fi

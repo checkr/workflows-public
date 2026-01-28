@@ -1,0 +1,23 @@
+name: Test Reusable Workflows (Internal)
+
+on:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  sast:
+    name: Test SAST
+    uses: ./.github/.github/workflows/sast.yml
+    
+  secrets:
+    name: Test Secrets
+    uses: ./.github/.github/workflows/secrets.yml
+    
+  dependencies:
+    name: Test Dependencies
+    uses: ./.github/.github/workflows/dependencies.yml
+    
+  iac:
+    name: Test IaC
+    uses: ./.github/.github/workflows/iac.yml
+

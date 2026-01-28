@@ -1,0 +1,98 @@
+name: Complete Security Scan
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+  workflow_call:
+    inputs:
+      product:
+        description: 'ArmorCode Product/Team name (e.g., Platform, Security, Customer)'
+        required: false
+        type: string
+        default: 'Security'
+      run-sast:
+        description: 'Run SAST scanning (Semgrep + CodeQL)'
+        required: false
+        type: boolean
+        default: true
+      run-secrets:
+        description: 'Run secret scanning (Gitleaks)'
+        required: false
+        type: boolean
+        default: true
+      run-dependencies:
+        description: 'Run dependency scanning (Trivy)'
+        required: false
+        type: boolean
+        default: true
+      run-iac:
+        description: 'Run IaC scanning (Trivy)'
+        required: false
+        type: boolean
+        default: true
+      run-containers:
+        description: 'Run container scanning (Trivy)'
+        required: false
+        type: boolean
+        default: false
+      container-image:
+        description: 'Container image to scan (required if run-containers is true)'
+        required: false
+        type: string
+        default: ''
+    secrets:
+      ARMORCODE_API_KEY:
+        description: 'ArmorCode API key for uploading scan results'
+        required: true
+
+jobs:
+  sast:
+    if: inputs.run-sast != false
+    uses: checkr/.github/.github/workflows/sast.yml@main
+    with:
+      product: ${{ inputs.product || 'Security' }}
+    secrets:
+      ARMORCODE_API_KEY: ${{ secrets.ARMORCODE_API_KEY || secrets.CHECKR_GITHUB_SCAN_UPLOAD_ARMORCODE_KEY }}
+    
+  secrets:
+    if: inputs.run-secrets != false
+    uses: checkr/.github/.github/workflows/secrets.yml@main
+    with:
+      product: ${{ inputs.product || 'Security' }}
+    secrets:
+      ARMORCODE_API_KEY: ${{ secrets.ARMORCODE_API_KEY || secrets.CHECKR_GITHUB_SCAN_UPLOAD_ARMORCODE_KEY }}
+    
+  dependencies:
+    if: inputs.run-dependencies != false
+    permissions:
+      security-events: write
+      contents: read
+    uses: checkr/.github/.github/workflows/dependencies.yml@main
+    with:
+      product: ${{ inputs.product || 'Security' }}
+    secrets:
+      ARMORCODE_API_KEY: ${{ secrets.ARMORCODE_API_KEY || secrets.CHECKR_GITHUB_SCAN_UPLOAD_ARMORCODE_KEY }}
+    
+  iac:
+    if: inputs.run-iac != false
+    permissions:
+      security-events: write
+      contents: read
+    uses: checkr/.github/.github/workflows/iac.yml@main
+    with:
+      product: ${{ inputs.product || 'Security' }}
+    secrets:
+      ARMORCODE_API_KEY: ${{ secrets.ARMORCODE_API_KEY || secrets.CHECKR_GITHUB_SCAN_UPLOAD_ARMORCODE_KEY }}
+    
+  containers:
+    if: inputs.run-containers == true
+    permissions:
+      security-events: write
+      contents: read
+    uses: checkr/.github/.github/workflows/containers.yml@main
+    with:
+      product: ${{ inputs.product || 'Security' }}
+      image-ref: ${{ inputs.container-image }}
+    secrets:
+      ARMORCODE_API_KEY: ${{ secrets.ARMORCODE_API_KEY || secrets.CHECKR_GITHUB_SCAN_UPLOAD_ARMORCODE_KEY }}
+

@@ -1,0 +1,83 @@
+name: Infrastructure as Code Scanning
+
+on:
+  workflow_call:
+    inputs:
+      product:
+        description: 'ArmorCode Product/Team name (e.g., Platform, Security, Customer)'
+        required: true
+        type: string
+    secrets:
+      ARMORCODE_API_KEY:
+        description: 'ArmorCode API key for uploading scan results'
+        required: true
+
+jobs:
+  trivy-iac:
+    runs-on: ubuntu-latest
+    name: Trivy IaC Scan
+    permissions:
+      security-events: write
+      contents: read
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Run Trivy IaC scanner (JSON for ArmorCode)
+        uses: aquasecurity/trivy-action@master
+        with:
+          scan-type: 'config'
+          scanners: 'misconfig'
+          format: 'json'
+          output: 'trivy-iac.json'
+          
+      - name: Upload scan results as artifacts (for ArmorCode ingestion)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: trivy-iac-results
+          path: trivy-iac.json
+      
+      - name: Upload to ArmorCode
+        if: always()
+        env:
+          ARMORCODE_API_KEY: ${{ secrets.ARMORCODE_API_KEY }}
+        run: |
+          # Get signed URL from ArmorCode
+          echo "Requesting signed URL from ArmorCode..."
+          RESPONSE=$(curl -s -w "\n%{http_code}" -X POST https://app.armorcode.com/client/utils/scan/upload \
+            -H "Authorization: Bearer ${ARMORCODE_API_KEY}" \
+            -H "Content-Type: application/json" \
+            -d '{
+              "env": "Production",
+              "product": "${{ inputs.product }}",
+              "subProduct": "${{ github.event.repository.name }}",
+              "scanTool": "Trivy Scan",
+              "tags": ["iac-scan"],
+              "fileName": "trivy-iac.json",
+              "fileExtension": ".json"
+            }')
+          
+          HTTP_CODE=$(echo "$RESPONSE" | tail -n1)
+          BODY=$(echo "$RESPONSE" | sed '$d')
+          
+          echo "HTTP Status Code: $HTTP_CODE"
+          echo "Response Body: $BODY"
+          
+          if [ "$HTTP_CODE" -eq 200 ]; then
+            SIGNED_URL=$(echo "$BODY" | jq -r '.signedUrl')
+            if [ ! -z "$SIGNED_URL" ] && [ "$SIGNED_URL" != "null" ]; then
+              echo "Uploading file to ArmorCode..."
+              curl -X PUT "$SIGNED_URL" \
+                -H "Content-Type: application/json" \
+                --data-binary @trivy-iac.json
+              echo "Successfully uploaded to ArmorCode"
+            else
+              echo "Error: No signedUrl in response"
+              exit 1
+            fi
+          else
+            echo "Error: Failed to get signed URL from ArmorCode (HTTP $HTTP_CODE)"
+            exit 1
+          fi
+

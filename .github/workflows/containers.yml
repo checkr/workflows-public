@@ -1,0 +1,77 @@
+name: Container Image Scanning
+
+on:
+  workflow_call:
+    inputs:
+      product:
+        description: 'ArmorCode Product/Team name (e.g., Platform, Security, Customer)'
+        required: true
+        type: string
+      image-ref:
+        description: 'Container image reference to scan (e.g., myapp:latest)'
+        required: false
+        type: string
+        default: ''
+    secrets:
+      ARMORCODE_API_KEY:
+        description: 'ArmorCode API key for uploading scan results'
+        required: true
+
+jobs:
+  trivy-container:
+    runs-on: ubuntu-latest
+    name: Trivy Container Scan
+    permissions:
+      security-events: write
+      contents: read
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+      
+      - name: Run Trivy container image scanner (JSON for ArmorCode)
+        if: inputs.image-ref != ''
+        uses: aquasecurity/trivy-action@master
+        with:
+          scan-type: 'image'
+          image-ref: ${{ inputs.image-ref }}
+          format: 'json'
+          output: 'trivy-container.json'
+      
+      - name: Upload scan results as artifacts (for ArmorCode ingestion)
+        if: always() && inputs.image-ref != ''
+        uses: actions/upload-artifact@v4
+        with:
+          name: trivy-container-results
+          path: trivy-container.json
+      
+      - name: Upload to ArmorCode
+        if: always() && inputs.image-ref != ''
+        env:
+          ARMORCODE_API_KEY: ${{ secrets.ARMORCODE_API_KEY }}
+        run: |
+          # Get signed URL from ArmorCode
+          SIGNED_URL=$(curl -s -X POST https://app.armorcode.com/client/utils/scan/upload \
+            -H "Authorization: Bearer ${ARMORCODE_API_KEY}" \
+            -H "Content-Type: application/json" \
+            -d '{
+              "env": "Production",
+              "product": "${{ inputs.product }}",
+              "subProduct": "${{ github.event.repository.name }}",
+              "scanTool": "Trivy Scan",
+              "tags": ["container-scan"],
+              "fileName": "trivy-container.json",
+              "fileExtension": ".json"
+            }' | jq -r '.signedUrl')
+          
+          # Upload file to signed URL
+          if [ ! -z "$SIGNED_URL" ] && [ "$SIGNED_URL" != "null" ]; then
+            curl -X PUT "$SIGNED_URL" \
+              -H "Content-Type: application/json" \
+              --data-binary @trivy-container.json
+            echo "Successfully uploaded to ArmorCode"
+          else
+            echo "Failed to get signed URL from ArmorCode"
+            exit 1
+          fi
+
+
