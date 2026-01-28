@@ -1,4 +1,4 @@
-name: Security Scan (Complete)
+name: Public Security Scan (Complete)
 
 on:
   push:
