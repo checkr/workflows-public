@@ -8,24 +8,24 @@ on:
 jobs:
   sast:
     name: Test SAST
-    uses: checkr/.github/.github/workflows/sast.yml@main
+    uses: checkr/workflows-public/.github/workflows/sast.yml@main
     with:
       product: "Security"
 
   secrets:
     name: Test Secrets
-    uses: checkr/.github/.github/workflows/secrets.yml@main
+    uses: checkr/workflows-public/.github/workflows/secrets.yml@main
     with:
       product: "Security"
 
   dependencies:
     name: Test Dependencies
-    uses: checkr/.github/.github/workflows/dependencies.yml@main
+    uses: checkr/workflows-public/.github/workflows/dependencies.yml@main
     with:
       product: "Security"
 
   iac:
     name: Test IaC
-    uses: checkr/.github/.github/workflows/iac.yml@main
+    uses: checkr/workflows-public/.github/workflows/iac.yml@main
     with:
       product: "Security"
