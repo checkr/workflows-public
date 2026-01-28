@@ -1,4 +1,4 @@
-name: Security Scan (Basic)
+name: Public Security Scan (Basic)
 
 on:
   push:
