@@ -1,4 +1,4 @@
-name: Test Reusable Workflows (Internal)
+name: Test Reusable Workflows (public)
 
 on:
   pull_request:
@@ -7,17 +7,17 @@ on:
 jobs:
   sast:
     name: Test SAST
-    uses: ./.github/.github/workflows/sast.yml
+    uses: checkr/workflows-public/.github/workflows/sast.yml@main
     
   secrets:
     name: Test Secrets
-    uses: ./.github/.github/workflows/secrets.yml
+    uses: checkr/workflows-public/.github/workflows/secrets.yml@main
     
   dependencies:
     name: Test Dependencies
-    uses: ./.github/.github/workflows/dependencies.yml
+    uses: chckr/workflows-public/.github/workflows/dependencies.yml@main
     
   iac:
     name: Test IaC
-    uses: ./.github/.github/workflows/iac.yml
+    uses: checkr/workflows-public/.github/workflows/iac.yml@main
 
