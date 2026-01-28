@@ -7,17 +7,16 @@ on:
 jobs:
   sast:
     name: Test SAST
-    uses: checkr/workflows-public/.github/workflows/sast.yml@main
+    uses: ./.github/workflows/sast.yml
     
   secrets:
     name: Test Secrets
-    uses: checkr/workflows-public/.github/workflows/secrets.yml@main
+    uses: ./.github/workflows/secrets.yml
     
   dependencies:
     name: Test Dependencies
-    uses: chckr/workflows-public/.github/workflows/dependencies.yml@main
+    uses: ./.github/workflows/dependencies.yml
     
   iac:
     name: Test IaC
-    uses: checkr/workflows-public/.github/workflows/iac.yml@main
-
+    uses: ./.github/workflows/iac.yml
