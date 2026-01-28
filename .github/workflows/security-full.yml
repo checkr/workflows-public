@@ -48,7 +48,7 @@ on:
 jobs:
   sast:
     if: inputs.run-sast != false
-    uses: checkr/.github/.github/workflows/sast.yml@main
+    uses: checkr/workflows-public/.github/workflows/sast.yml@main
     with:
       product: ${{ inputs.product || 'Security' }}
     secrets:
@@ -56,7 +56,7 @@ jobs:
     
   secrets:
     if: inputs.run-secrets != false
-    uses: checkr/.github/.github/workflows/secrets.yml@main
+    uses: checkr/workflows-public/.github/workflows/secrets.yml@main
     with:
       product: ${{ inputs.product || 'Security' }}
     secrets:
@@ -67,7 +67,7 @@ jobs:
     permissions:
       security-events: write
       contents: read
-    uses: checkr/.github/.github/workflows/dependencies.yml@main
+    uses: checkr/workflows-public/.github/workflows/dependencies.yml@main
     with:
       product: ${{ inputs.product || 'Security' }}
     secrets:
@@ -78,7 +78,7 @@ jobs:
     permissions:
       security-events: write
       contents: read
-    uses: checkr/.github/.github/workflows/iac.yml@main
+    uses: checkr/workflows-public/.github/workflows/iac.yml@main
     with:
       product: ${{ inputs.product || 'Security' }}
     secrets:
@@ -89,7 +89,7 @@ jobs:
     permissions:
       security-events: write
       contents: read
-    uses: checkr/.github/.github/workflows/containers.yml@main
+    uses: checkr/workflows-public/.github/workflows/containers.yml@main
     with:
       product: ${{ inputs.product || 'Security' }}
       image-ref: ${{ inputs.container-image }}
