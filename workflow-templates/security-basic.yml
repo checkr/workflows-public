@@ -1,4 +1,4 @@
-name: Security Scan (Basic)
+name: Public Security Scan (Basic)
 
 on:
   push:
@@ -9,7 +9,7 @@ on:
 jobs:
   sast:
     name: Static Analysis
-    uses: checkr/.github/.github/workflows/sast.yml@main
+    uses: checkr/workflows-public/.github/workflows/sast.yml@main
     with:
       product: 'YourTeamName'  # REQUIRED: Set your team/product name
     secrets:
@@ -17,7 +17,7 @@ jobs:
     
   secrets:
     name: Secret Detection
-    uses: checkr/.github/.github/workflows/secrets.yml@main
+    uses: checkr/workflows-public/.github/workflows/secrets.yml@main
     with:
       product: 'YourTeamName'  # REQUIRED: Set your team/product name
     secrets:
@@ -28,7 +28,7 @@ jobs:
     permissions:
       security-events: write
       contents: read
-    uses: checkr/.github/.github/workflows/dependencies.yml@main
+    uses: checkr/workflows-public/.github/workflows/dependencies.yml@main
     with:
       product: 'YourTeamName'  # REQUIRED: Set your team/product name
     secrets:
