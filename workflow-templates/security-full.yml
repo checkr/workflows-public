@@ -1,0 +1,26 @@
+name: Security Scan (Complete)
+
+on:
+  push:
+    branches: [ $default-branch ]
+  pull_request:
+    branches: [ $default-branch ]
+
+jobs:
+  security:
+    name: Complete Security Scan
+    permissions:
+      security-events: write
+      contents: read
+    uses: checkr/.github/.github/workflows/security-full.yml@main
+    with:
+      product: 'YourTeamName'  # REQUIRED: Set your team/product name (e.g., Platform, Security, Customer)
+      run-sast: true
+      run-secrets: true
+      run-dependencies: true
+      run-iac: true
+      run-containers: false  # Set to true if you build Docker images
+      # container-image: 'your-image:tag'  # Uncomment and set if run-containers is true
+    secrets:
+      ARMORCODE_API_KEY: ${{ secrets.CHECKR_GITHUB_SCAN_UPLOAD_ARMORCODE_KEY }}
+

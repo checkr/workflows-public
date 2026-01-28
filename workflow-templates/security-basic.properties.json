@@ -1,0 +1,8 @@
+{
+  "name": "Checkr Security Scan (Basic)",
+  "description": "Run SAST, secret detection, and dependency scanning on your code",
+  "iconName": "shield-check",
+  "categories": ["Security"],
+  "filePatterns": [".*"]
+}
+

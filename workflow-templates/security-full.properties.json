@@ -1,0 +1,8 @@
+{
+  "name": "Checkr Security Scan (Complete)",
+  "description": "Run all security scans: SAST, secrets, dependencies, IaC, and containers",
+  "iconName": "shield-lock",
+  "categories": ["Security"],
+  "filePatterns": [".*"]
+}
+

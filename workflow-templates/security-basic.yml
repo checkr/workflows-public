@@ -1,0 +1,36 @@
+name: Security Scan (Basic)
+
+on:
+  push:
+    branches: [ $default-branch ]
+  pull_request:
+    branches: [ $default-branch ]
+
+jobs:
+  sast:
+    name: Static Analysis
+    uses: checkr/.github/.github/workflows/sast.yml@main
+    with:
+      product: 'YourTeamName'  # REQUIRED: Set your team/product name
+    secrets:
+      ARMORCODE_API_KEY: ${{ secrets.CHECKR_GITHUB_SCAN_UPLOAD_ARMORCODE_KEY }}
+    
+  secrets:
+    name: Secret Detection
+    uses: checkr/.github/.github/workflows/secrets.yml@main
+    with:
+      product: 'YourTeamName'  # REQUIRED: Set your team/product name
+    secrets:
+      ARMORCODE_API_KEY: ${{ secrets.CHECKR_GITHUB_SCAN_UPLOAD_ARMORCODE_KEY }}
+    
+  dependencies:
+    name: Dependency Scanning
+    permissions:
+      security-events: write
+      contents: read
+    uses: checkr/.github/.github/workflows/dependencies.yml@main
+    with:
+      product: 'YourTeamName'  # REQUIRED: Set your team/product name
+    secrets:
+      ARMORCODE_API_KEY: ${{ secrets.CHECKR_GITHUB_SCAN_UPLOAD_ARMORCODE_KEY }}
+
