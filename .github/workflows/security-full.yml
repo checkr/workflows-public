@@ -52,7 +52,7 @@ jobs:
     with:
       product: ${{ inputs.product || 'Security' }}
     secrets:
-      ARMORCODE_API_KEY: ${{ secrets.ARMORCODE_API_KEY || secrets.CHECKR_GITHUB_SCAN_UPLOAD_ARMORCODE_KEY }}
+      ARMORCODE_API_KEY: ${{ secrets.CHECKR_GITHUB_SCAN_UPLOAD_ARMORCODE_KEY }}
     
   secrets:
     if: inputs.run-secrets != false
@@ -60,7 +60,7 @@ jobs:
     with:
       product: ${{ inputs.product || 'Security' }}
     secrets:
-      ARMORCODE_API_KEY: ${{ secrets.ARMORCODE_API_KEY || secrets.CHECKR_GITHUB_SCAN_UPLOAD_ARMORCODE_KEY }}
+      ARMORCODE_API_KEY: ${{ secrets.CHECKR_GITHUB_SCAN_UPLOAD_ARMORCODE_KEY }}
     
   dependencies:
     if: inputs.run-dependencies != false
@@ -71,7 +71,7 @@ jobs:
     with:
       product: ${{ inputs.product || 'Security' }}
     secrets:
-      ARMORCODE_API_KEY: ${{ secrets.ARMORCODE_API_KEY || secrets.CHECKR_GITHUB_SCAN_UPLOAD_ARMORCODE_KEY }}
+      ARMORCODE_API_KEY: ${{ secrets.CHECKR_GITHUB_SCAN_UPLOAD_ARMORCODE_KEY }}
     
   iac:
     if: inputs.run-iac != false
@@ -82,7 +82,7 @@ jobs:
     with:
       product: ${{ inputs.product || 'Security' }}
     secrets:
-      ARMORCODE_API_KEY: ${{ secrets.ARMORCODE_API_KEY || secrets.CHECKR_GITHUB_SCAN_UPLOAD_ARMORCODE_KEY }}
+      ARMORCODE_API_KEY: ${{ secrets.CHECKR_GITHUB_SCAN_UPLOAD_ARMORCODE_KEY }}
     
   containers:
     if: inputs.run-containers == true
@@ -94,5 +94,5 @@ jobs:
       product: ${{ inputs.product || 'Security' }}
       image-ref: ${{ inputs.container-image }}
     secrets:
-      ARMORCODE_API_KEY: ${{ secrets.ARMORCODE_API_KEY || secrets.CHECKR_GITHUB_SCAN_UPLOAD_ARMORCODE_KEY }}
+      ARMORCODE_API_KEY: ${{ secrets.CHECKR_GITHUB_SCAN_UPLOAD_ARMORCODE_KEY }}
 
